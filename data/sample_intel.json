@@ -1,0 +1,339 @@
+{
+  "entities": [
+    {
+      "id": "actor-red-monsoon",
+      "name": "Red Monsoon",
+      "type": "threat_actor",
+      "description": "Synthetic espionage-oriented threat actor targeting telecom and technology organizations.",
+      "aliases": [
+        "RM-42"
+      ],
+      "attributes": {
+        "motivation": "espionage"
+      }
+    },
+    {
+      "id": "actor-crimson-fox",
+      "name": "Crimson Fox",
+      "type": "threat_actor",
+      "description": "Synthetic financially motivated actor associated with cloud identity abuse.",
+      "aliases": [
+        "CFX"
+      ],
+      "attributes": {
+        "motivation": "financial"
+      }
+    },
+    {
+      "id": "campaign-harbor",
+      "name": "Crimson Harbor",
+      "type": "campaign",
+      "description": "Synthetic campaign using OAuth token theft and SaaS access against finance teams.",
+      "attributes": {
+        "sector": "finance",
+        "year": 2026
+      }
+    },
+    {
+      "id": "campaign-switchyard",
+      "name": "Operation Switchyard",
+      "type": "campaign",
+      "description": "Synthetic telecom-focused campaign combining credential access and cloud discovery.",
+      "attributes": {
+        "sector": "telecom",
+        "year": 2026
+      }
+    },
+    {
+      "id": "malware-cloudhook",
+      "name": "CloudHook",
+      "type": "malware",
+      "description": "Synthetic credential and token collection utility represented only as CTI metadata.",
+      "attributes": {
+        "platform": "cloud"
+      }
+    },
+    {
+      "id": "malware-silentriver",
+      "name": "SilentRiver",
+      "type": "malware",
+      "description": "Synthetic endpoint implant represented as metadata for graph correlation.",
+      "attributes": {
+        "platform": "windows"
+      }
+    },
+    {
+      "id": "tech-t1528",
+      "name": "T1528 - Steal Application Access Token",
+      "type": "technique",
+      "description": "MITRE ATT&CK technique for stealing application access tokens.",
+      "aliases": [
+        "token theft",
+        "access token theft"
+      ],
+      "attributes": {
+        "attack_id": "T1528",
+        "tactic": "Credential Access"
+      }
+    },
+    {
+      "id": "tech-t1078",
+      "name": "T1078 - Valid Accounts",
+      "type": "technique",
+      "description": "MITRE ATT&CK technique involving legitimate accounts used for access.",
+      "aliases": [
+        "valid accounts"
+      ],
+      "attributes": {
+        "attack_id": "T1078",
+        "tactic": "Defense Evasion"
+      }
+    },
+    {
+      "id": "tech-t1087",
+      "name": "T1087 - Account Discovery",
+      "type": "technique",
+      "description": "MITRE ATT&CK technique for discovering accounts in an environment.",
+      "aliases": [
+        "account discovery"
+      ],
+      "attributes": {
+        "attack_id": "T1087",
+        "tactic": "Discovery"
+      }
+    },
+    {
+      "id": "ioc-oauth-domain",
+      "name": "oauth-sync-login.example",
+      "type": "indicator",
+      "description": "Synthetic domain linked to OAuth consent lures.",
+      "attributes": {
+        "indicator_type": "domain",
+        "value": "oauth-sync-login.example"
+      }
+    },
+    {
+      "id": "ioc-ip-77",
+      "name": "198.51.100.77",
+      "type": "indicator",
+      "description": "Synthetic IP associated with suspicious identity infrastructure.",
+      "attributes": {
+        "indicator_type": "ipv4",
+        "value": "198.51.100.77"
+      }
+    },
+    {
+      "id": "ioc-hash-1",
+      "name": "sha256:7d7a-synthetic-cloudhook",
+      "type": "indicator",
+      "description": "Synthetic file hash associated with CloudHook metadata.",
+      "attributes": {
+        "indicator_type": "sha256"
+      }
+    },
+    {
+      "id": "vuln-cve-synth",
+      "name": "CVE-2026-0000-SYNTH",
+      "type": "vulnerability",
+      "description": "Synthetic vulnerability placeholder used for safe graph demonstrations.",
+      "attributes": {
+        "severity": "high"
+      }
+    },
+    {
+      "id": "sector-telecom",
+      "name": "Telecommunications",
+      "type": "sector",
+      "description": "Telecommunications industry sector."
+    },
+    {
+      "id": "sector-finance",
+      "name": "Financial Services",
+      "type": "sector",
+      "description": "Financial services industry sector."
+    },
+    {
+      "id": "asset-finance-sharepoint",
+      "name": "Finance SharePoint",
+      "type": "asset",
+      "description": "Synthetic sensitive collaboration asset owned by the finance organization.",
+      "attributes": {
+        "criticality": "high"
+      }
+    },
+    {
+      "id": "asset-entra",
+      "name": "Enterprise Entra Tenant",
+      "type": "asset",
+      "description": "Synthetic enterprise identity tenant.",
+      "attributes": {
+        "criticality": "critical"
+      }
+    },
+    {
+      "id": "obs-finance-signin",
+      "name": "Finance User Suspicious Sign-in",
+      "type": "observation",
+      "description": "Synthetic Entra observation from finance.user@example.com using 198.51.100.77 after unusual OAuth activity.",
+      "attributes": {
+        "source": "entra",
+        "principal": "finance.user@example.com",
+        "indicator": "198.51.100.77"
+      }
+    },
+    {
+      "id": "obs-oauth-consent",
+      "name": "Unexpected OAuth Consent",
+      "type": "observation",
+      "description": "Synthetic enterprise observation of unusual OAuth consent followed by SharePoint access.",
+      "attributes": {
+        "source": "m365",
+        "principal": "finance.user@example.com"
+      }
+    },
+    {
+      "id": "obs-telecom-dns",
+      "name": "Telecom DNS Match",
+      "type": "observation",
+      "description": "Synthetic DNS observation matching oauth-sync-login.example in a telecom network.",
+      "attributes": {
+        "source": "dns",
+        "domain": "oauth-sync-login.example"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "source": "actor-crimson-fox",
+      "target": "campaign-harbor",
+      "type": "operates",
+      "confidence": 0.82
+    },
+    {
+      "source": "actor-red-monsoon",
+      "target": "campaign-switchyard",
+      "type": "operates",
+      "confidence": 0.88
+    },
+    {
+      "source": "campaign-harbor",
+      "target": "sector-finance",
+      "type": "targets",
+      "confidence": 0.91
+    },
+    {
+      "source": "campaign-switchyard",
+      "target": "sector-telecom",
+      "type": "targets",
+      "confidence": 0.93
+    },
+    {
+      "source": "campaign-harbor",
+      "target": "malware-cloudhook",
+      "type": "uses",
+      "confidence": 0.79
+    },
+    {
+      "source": "campaign-switchyard",
+      "target": "malware-silentriver",
+      "type": "uses",
+      "confidence": 0.81
+    },
+    {
+      "source": "campaign-harbor",
+      "target": "tech-t1528",
+      "type": "uses",
+      "confidence": 0.95
+    },
+    {
+      "source": "campaign-harbor",
+      "target": "tech-t1078",
+      "type": "uses",
+      "confidence": 0.89
+    },
+    {
+      "source": "campaign-switchyard",
+      "target": "tech-t1078",
+      "type": "uses",
+      "confidence": 0.9
+    },
+    {
+      "source": "campaign-switchyard",
+      "target": "tech-t1087",
+      "type": "uses",
+      "confidence": 0.86
+    },
+    {
+      "source": "malware-cloudhook",
+      "target": "ioc-hash-1",
+      "type": "associated_with",
+      "confidence": 0.9
+    },
+    {
+      "source": "campaign-harbor",
+      "target": "ioc-oauth-domain",
+      "type": "associated_with",
+      "confidence": 0.87
+    },
+    {
+      "source": "campaign-harbor",
+      "target": "ioc-ip-77",
+      "type": "associated_with",
+      "confidence": 0.84
+    },
+    {
+      "source": "campaign-switchyard",
+      "target": "ioc-oauth-domain",
+      "type": "associated_with",
+      "confidence": 0.62
+    },
+    {
+      "source": "ioc-ip-77",
+      "target": "obs-finance-signin",
+      "type": "observed_as",
+      "confidence": 0.98
+    },
+    {
+      "source": "ioc-oauth-domain",
+      "target": "obs-telecom-dns",
+      "type": "observed_as",
+      "confidence": 0.99
+    },
+    {
+      "source": "tech-t1528",
+      "target": "obs-oauth-consent",
+      "type": "observed_as",
+      "confidence": 0.76
+    },
+    {
+      "source": "obs-finance-signin",
+      "target": "asset-entra",
+      "type": "seen_on",
+      "confidence": 1.0
+    },
+    {
+      "source": "obs-oauth-consent",
+      "target": "asset-finance-sharepoint",
+      "type": "seen_on",
+      "confidence": 1.0
+    },
+    {
+      "source": "obs-telecom-dns",
+      "target": "asset-entra",
+      "type": "seen_on",
+      "confidence": 0.77
+    },
+    {
+      "source": "campaign-switchyard",
+      "target": "vuln-cve-synth",
+      "type": "exploits",
+      "confidence": 0.58
+    },
+    {
+      "source": "actor-red-monsoon",
+      "target": "sector-telecom",
+      "type": "targets",
+      "confidence": 0.9
+    }
+  ]
+}
