@@ -298,7 +298,7 @@ That improves:
 - analyst feedback loop
 - graph-based detection features
 
-## Example interview pitch
+## Example project pitch
 
 > "I built a threat-intelligence knowledge graph that normalizes CTI entities such as actors, campaigns, malware, ATT&CK techniques, indicators, vulnerabilities, and enterprise observations into a typed graph. Instead of relying only on vector similarity, I retrieve candidate entities, expand their graph neighborhoods, score evidence paths, and give the reasoning layer a compact subgraph. That lets analysts ask multi-hop questions like which campaigns use a particular technique and whether any associated infrastructure has actually appeared in our telemetry."
 
