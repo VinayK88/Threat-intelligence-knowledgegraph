@@ -2,7 +2,7 @@
 
 > **Connect threat actors, campaigns, malware, ATT&CK techniques, indicators, vulnerabilities, and enterprise observations into one explainable investigation graph.**
 
-This project is a defensive, GitHub-ready reference implementation for graph-based cyber threat intelligence (CTI). It demonstrates how fragmented security intelligence can be normalized into entities and relationships, searched semantically-ish with lightweight retrieval, traversed as evidence paths, and exposed through an analyst-friendly API.
+This project is a defensive, reference implementation for graph-based cyber threat intelligence (CTI). It demonstrates how fragmented security intelligence can be normalized into entities and relationships, searched semantically-ish with lightweight retrieval, traversed as evidence paths, and exposed through an analyst-friendly API.
 
 The default demo uses **synthetic CTI data** so it is safe to publish and easy to run locally.
 
