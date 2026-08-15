@@ -23,6 +23,16 @@ A defensive, locally runnable reference implementation for graph-based cyber thr
 
 The included dataset is entirely **synthetic**. You can run the API, inspect multi-hop paths, and test retrieval without threat-feed credentials, cloud infrastructure, or an LLM API key.
 
+## 60-second reviewer path
+
+Short on time? Review the project in this order:
+
+1. [Start with the analyst question](#the-question-this-project-answers).
+2. [Follow the knowledge-graph architecture](#architecture).
+3. [Inspect the implemented CTI capabilities](#what-is-included).
+4. [Walk through an evidence-path investigation](#investigation-walkthrough).
+5. [Run the graph locally](#quick-start).
+
 ## The question this project answers
 
 Threat intelligence often arrives as isolated facts: a domain in one feed, a malware family in a report, a technique in ATT&CK, and an alert in your SIEM. The useful question is not “do these strings match?” but:
