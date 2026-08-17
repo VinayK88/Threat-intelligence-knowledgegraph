@@ -2,347 +2,236 @@
 
 # Threat Intelligence Knowledge Graph
 
-### Turn disconnected cyber threat intelligence into evidence paths analysts can inspect
+### Evidence Paths · Graph Retrieval · Analyst-Gated Link Prediction
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![CI](https://github.com/VinayK88/Threat-intelligence-knowledgegraph/actions/workflows/ci.yml/badge.svg)](https://github.com/VinayK88/Threat-intelligence-knowledgegraph/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/Python-3.10--3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![NetworkX](https://img.shields.io/badge/NetworkX-3.3%2B-4F6F8F)](https://networkx.org/)
-[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](Dockerfile)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Data](https://img.shields.io/badge/CTI-synthetic%20only-7B61FF)](#safety)
+[![NetworkX](https://img.shields.io/badge/Graph-NetworkX-4F6F8F)](https://networkx.org/)
+[![Graph ML](https://img.shields.io/badge/Graph%20ML-Link%20Prediction-6D28D9)](#graph-ml-link-prediction)
+[![Data](https://img.shields.io/badge/CTI-synthetic%20only-7B61FF)](#evaluation-boundary)
 
-**Entity resolution · graph traversal · confidence scoring · evidence retrieval**
-
-[Quick start](#quick-start) · [Try the investigation flow](#investigation-walkthrough) · [Architecture](#architecture) · [Data model](#data-model)
+> **Core question:** Which threat-intelligence relationships are supported by evidence today—and which missing relationships are structurally plausible enough for an analyst to investigate next?
 
 </div>
 
 ---
 
-A defensive, locally runnable reference implementation for graph-based cyber threat intelligence (CTI). It connects threat actors, campaigns, malware, ATT&CK techniques, indicators, vulnerabilities, enterprise observations, and assets into one typed, explainable graph.
+A defensive, locally runnable CTI platform that connects threat actors, campaigns, malware, ATT&CK techniques, indicators, vulnerabilities, enterprise observations, sectors and assets into a typed graph.
 
-The included dataset is entirely **synthetic**. You can run the API, inspect multi-hop paths, and test retrieval without threat-feed credentials, cloud infrastructure, or an LLM API key.
+The system now combines:
 
-## 60-second reviewer path
+```text
+explicit CTI relationships
+        +
+evidence-path traversal
+        +
+text retrieval
+        +
+graph ML candidate ranking
+        ↓
+analyst-verifiable intelligence context
+```
 
-Short on time? Review the project in this order:
-
-1. [Start with the analyst question](#the-question-this-project-answers).
-2. [Follow the knowledge-graph architecture](#architecture).
-3. [Inspect the implemented CTI capabilities](#what-is-included).
-4. [Walk through an evidence-path investigation](#investigation-walkthrough).
-5. [Run the graph locally](#quick-start).
-
-## The question this project answers
-
-Threat intelligence often arrives as isolated facts: a domain in one feed, a malware family in a report, a technique in ATT&CK, and an alert in your SIEM. The useful question is not “do these strings match?” but:
-
-> Which campaigns use token-theft techniques, and does any associated infrastructure overlap with observations in our environment?
-
-This project returns a compact **evidence subgraph** instead of a pile of unrelated documents.
+**Graph ML never writes a relationship automatically.** Candidate links remain hypotheses until an analyst or trusted evidence source confirms them.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    subgraph Inputs
-        FEEDS[Threat feeds]
-        REPORTS["Research reports"]
-        ATTACK["ATT&CK"]
-        TEL["SIEM / EDR observations"]
-    end
-
-    FEEDS & REPORTS & ATTACK & TEL --> NORM["Normalize entities + relationships"]
-    NORM --> RESOLVE["Resolve IDs + aliases"]
-    RESOLVE --> KG[("Typed knowledge graph")]
-    KG --> TEXT["Text retrieval"]
-    KG --> TRAVERSE["Path traversal"]
-    TEXT & TRAVERSE --> EVIDENCE["Ranked evidence bundle"]
-    EVIDENCE --> API["FastAPI / analyst UI"]
-    EVIDENCE -. optional .-> LLM["Grounded reasoning layer"]
+    F[Threat feeds / reports / ATT&CK / telemetry] --> N[Normalize entities]
+    N --> R[Resolve aliases + IDs]
+    R --> G[(Typed CTI graph)]
+    G --> P[Evidence path traversal]
+    G --> T[Text retrieval]
+    G --> X[Structural graph features]
+    X --> ML[Logistic link predictor]
+    ML --> C[Ranked missing-link candidates]
+    P --> E[Evidence bundle]
+    T --> E
+    C --> A[Analyst review]
+    A --> E
+    E --> API[FastAPI / browser demo]
 ```
 
-### Example evidence path
-
-The sample graph can connect a synthetic campaign to an internal observation in two hops:
-
-```mermaid
-flowchart LR
-    A["Crimson Fox<br/>threat actor"] -->|operates · 0.82| C["Crimson Harbor<br/>campaign"]
-    C -->|uses · 0.95| T["T1528<br/>token theft technique"]
-    C -->|associated_with · 0.84| I["198.51.100.77<br/>indicator"]
-    I -->|observed_as · 0.98| O["Finance suspicious sign-in<br/>observation"]
-    O -->|seen_on · 1.00| E["Enterprise Entra Tenant<br/>asset"]
-```
-
-Path confidence is intentionally transparent: the graph multiplies edge confidence across a path. For example, `0.84 × 0.98 = 0.8232`.
-
-## What is included
+## What is implemented
 
 | Capability | Implementation |
 | --- | --- |
-| Typed CTI entities and relationships | Pydantic models |
-| Multi-edge directed graph | NetworkX `MultiDiGraph` |
-| Entity-centric investigation | Inbound/outbound neighborhood expansion |
-| Explainable correlation | Bounded simple-path traversal |
-| Lightweight retrieval | Token-overlap ranking over names, aliases, descriptions, and attributes |
-| RAG-ready context | Matched entities + evidence paths + compact text context |
-| Analyst access | FastAPI, OpenAPI docs, and a browser demo |
-| Reproducibility | Synthetic JSON data and unit tests |
+| Typed CTI entities / relationships | Pydantic models |
+| Directed multi-edge graph | NetworkX `MultiDiGraph` |
+| Entity investigation | inbound/outbound neighborhood expansion |
+| Evidence paths | bounded directed traversal with transparent confidence |
+| Lightweight retrieval | token-overlap ranking over names, aliases and descriptions |
+| RAG-ready evidence | matched entities + graph paths + compact context |
+| Graph ML | logistic missing-link ranking over structural features |
+| Analyst boundary | candidates are advisory and never inserted automatically |
+| API | FastAPI + browser investigation UI |
+| CI | Python 3.10–3.12 tests + graph ML smoke tests |
 
-## Quick start
+## Evidence-path reasoning
 
-### 1. Install
+The graph preserves explicit evidence rather than collapsing intelligence into one opaque score.
 
-```bash
-git clone https://github.com/VinayK88/Threat-intelligence-knowledgegraph.git
-cd Threat-intelligence-knowledgegraph
+Example:
 
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+```text
+Campaign
+  ├─ uses → ATT&CK technique
+  ├─ associated_with → indicator
+  └─ indicator → observed_as → enterprise observation
 ```
 
-### 2. Start the API
+Path confidence remains transparent and is calculated from the explicit relationships already present in the graph.
+
+This is separate from ML: **known edges are evidence; predicted edges are investigation candidates.**
+
+## Graph ML link prediction
+
+The new graph ML layer uses a **standardized logistic-regression classifier** over eight structural features:
+
+```text
+source out-degree
+target in-degree
+common neighbors
+Jaccard neighborhood overlap
+directed two-hop paths
+reverse-edge presence
+same entity type
+smoothed source-type → target-type prior
+```
+
+### Held-out evaluation design
+
+The implementation creates a reproducible synthetic missing-link task:
+
+1. Existing graph edges are positive examples.
+2. An equal number of deterministic non-edges are negative examples.
+3. A stratified holdout is created.
+4. Held-out positive relationships are **removed from the observed graph before feature extraction**.
+5. The classifier is evaluated on those unseen positive/non-edge pairs.
+6. The final ranking model is refit for candidate generation.
+
+This avoids the most obvious direct-edge leakage and makes the evaluation closer to the question the feature is meant to answer: *could the graph recover a relationship that is temporarily hidden?*
+
+The resulting precision/recall/F1/ROC-AUC values are intentionally reported only as **synthetic pipeline validation**, not production CTI discovery accuracy.
+
+## Candidate-link ranking
+
+`rank_missing_links()` scores only relationships that do **not** already exist.
+
+Each candidate includes:
+
+- source and target IDs;
+- entity types;
+- model score;
+- structural evidence such as shared neighbors or a two-hop path.
+
+Example shape:
+
+```json
+{
+  "source": "campaign-example",
+  "target": "indicator-example",
+  "source_type": "campaign",
+  "target_type": "indicator",
+  "probability": 0.73,
+  "evidence": ["shared graph neighbors", "directed two-hop path"]
+}
+```
+
+The score is a model ranking output—not verified attribution or relationship confidence.
+
+## API
 
 ```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-| Destination | URL |
-| --- | --- |
-| Browser investigation demo | <http://localhost:8000> |
-| Interactive OpenAPI docs | <http://localhost:8000/docs> |
-| Raw OpenAPI schema | <http://localhost:8000/openapi.json> |
-
-### Docker alternative
-
-```bash
-docker build -t threat-intel-graph .
-docker run --rm -p 8000:8000 threat-intel-graph
-```
-
-## Investigation walkthrough
-
-### 1. Inspect the graph
-
-```bash
-curl -sS http://localhost:8000/graph/stats | python -m json.tool
-```
-
-```json
-{
-  "nodes": 20,
-  "edges": 22,
-  "entity_types": {
-    "asset": 2,
-    "campaign": 2,
-    "indicator": 3,
-    "malware": 2,
-    "observation": 3,
-    "sector": 2,
-    "technique": 3,
-    "threat_actor": 2,
-    "vulnerability": 1
-  }
-}
-```
-
-### 2. Explore one entity's neighborhood
-
-```bash
-curl -sS http://localhost:8000/entity/campaign-harbor | python -m json.tool
-```
-
-The response contains the `Crimson Harbor` entity plus inbound and outbound neighbors, relationship names, and edge confidence.
-
-### 3. Prove a campaign-to-observation connection
-
-```bash
-curl -sS \
-  'http://localhost:8000/paths?source=campaign-harbor&target=obs-finance-signin&cutoff=3' \
-  | python -m json.tool
-```
-
-```json
-[
-  {
-    "nodes": [
-      "campaign-harbor",
-      "ioc-ip-77",
-      "obs-finance-signin"
-    ],
-    "relationships": [
-      "associated_with",
-      "observed_as"
-    ],
-    "confidence": 0.8232
-  }
-]
-```
-
-### 4. Build a RAG-style evidence bundle
-
-```bash
-curl -sS -X POST http://localhost:8000/query \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "question": "Which token theft campaigns overlap with finance telemetry?",
-    "top_k": 8
-  }' | python -m json.tool
-```
-
-The response has four deliberate parts:
-
-```json
-{
-  "question": "Which token theft campaigns overlap with finance telemetry?",
-  "matched_entities": ["ranked entity objects"],
-  "evidence_paths": ["bounded, confidence-scored paths"],
-  "context": "compact entity and relationship facts for a reasoning layer"
-}
-```
-
-### 5. Review enterprise observations
-
-```bash
-curl -sS http://localhost:8000/observations | python -m json.tool
-```
-
-## How retrieval works
-
-```mermaid
-sequenceDiagram
-    participant Analyst
-    participant Retriever
-    participant Graph
-    participant Evidence
-
-    Analyst->>Retriever: Natural-language question
-    Retriever->>Graph: Rank names, aliases, descriptions, attributes
-    Graph-->>Retriever: Top-k seed entities
-    Retriever->>Graph: Expand one-hop neighborhoods
-    Retriever->>Graph: Find paths from seeds to observations
-    Graph-->>Evidence: Entities + relationships + confidence
-    Evidence-->>Analyst: Compact, inspectable context bundle
-```
-
-The MVP retriever is deliberately lightweight and deterministic:
-
-1. Tokenize the question and remove common stop words.
-2. Rank entity documents by token overlap, rarity, and exact-name matches.
-3. Expand one hop around the strongest seed entities.
-4. Find bounded paths from seed entities to enterprise observations.
-5. Deduplicate and rank paths by multiplied edge confidence.
-6. Return only the compact evidence needed downstream.
-
-This is “semantic-ish” retrieval without embeddings. The adapter boundary makes it straightforward to add a vector index later without replacing the graph.
-
-## Data model
-
-### Entity types
-
-| Type | Example | Why it matters |
-| --- | --- | --- |
-| `threat_actor` | Crimson Fox | Attribution hypothesis |
-| `campaign` | Crimson Harbor | Groups activity over time |
-| `malware` | CloudHook | Tooling association |
-| `technique` | T1528 | ATT&CK behavior |
-| `indicator` | `198.51.100.77` | Observable infrastructure |
-| `vulnerability` | Synthetic CVE | Exploitation context |
-| `observation` | Suspicious sign-in | Internal evidence |
-| `asset` | Entra tenant | Business/environment impact |
-| `sector` | Financial Services | Targeting context |
-
-### Relationship contract
-
-```json
-{
-  "source": "campaign-harbor",
-  "target": "ioc-ip-77",
-  "type": "associated_with",
-  "confidence": 0.84,
-  "source_name": "synthetic",
-  "notes": ""
-}
-```
-
-Supported sample relationships include `operates`, `targets`, `uses`, `associated_with`, `exploits`, `observed_as`, and `seen_on`.
-
-## Why graph + retrieval?
-
-| Question type | Text/vector retrieval | Knowledge graph |
-| --- | --- | --- |
-| “Find reports similar to token theft” | Excellent | Possible |
-| “How is this campaign connected to our asset?” | Indirect | Excellent |
-| “Show the exact evidence chain” | Requires reconstruction | Native |
-| “Preserve relationship confidence” | Often flattened | Native |
-| “Explain why this result appeared” | Similarity score | Path + edge provenance |
-
-In production, the strongest design uses both: semantic retrieval finds candidate entities, and graph traversal proves how they connect.
-
-## Repository map
+Core endpoints:
 
 ```text
-.
-├── app/
-│   ├── main.py          # FastAPI routes and browser demo
-│   ├── models.py        # Entity, relationship, query, and path contracts
-│   ├── graph.py         # MultiDiGraph operations and path confidence
-│   ├── retrieval.py     # Entity ranking and evidence construction
-│   └── load_data.py     # JSON-to-graph loader
-├── data/
-│   └── sample_intel.json
-├── tests/
-│   ├── test_graph.py
-│   └── test_retrieval.py
-├── docs/architecture.md
-├── Dockerfile
-└── requirements.txt
+GET  /graph/stats
+GET  /entity/{entity_id}
+GET  /paths?source=...&target=...
+POST /query
+GET  /observations
+GET  /ml/link-candidates?limit=10
 ```
 
-Run the tests:
+The browser demo now includes a **Rank missing links** action so reviewers can inspect ML hypotheses separately from normal evidence retrieval.
+
+## Example investigation flow
+
+```text
+Analyst question
+    ↓
+retrieve matching CTI entities
+    ↓
+expand known evidence paths
+    ↓
+inspect internal observations
+    ↓
+optionally rank missing graph links
+    ↓
+validate candidate against trusted evidence
+```
+
+This preserves a critical CTI distinction: correlation can suggest where to look, but attribution requires evidence.
+
+## Run tests
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-## Production evolution
+GitHub Actions validates Python **3.10, 3.11 and 3.12**, including the existing graph/retrieval tests, link-prediction tests, API route, candidate-generation smoke test and module compilation.
 
-```mermaid
-flowchart TB
-    TAXII["STIX / TAXII feeds"] --> ER["Entity resolution + provenance"]
-    OBS["OCSF / SIEM observations"] --> ER
-    ER --> G[("Neo4j / Neptune / Cosmos DB")]
-    ER --> V[("Vector index")]
-    G & V --> RET["Hybrid retrieval"]
-    RET --> PRUNE["Evidence pruning + temporal filtering"]
-    PRUNE --> UI["Analyst UI"]
-    PRUNE --> RAG["Grounded LLM synthesis"]
-    UI --> FB["Analyst feedback"]
-    FB --> ER
+## Data model
+
+Representative entity types:
+
+```text
+threat_actor
+campaign
+malware
+technique
+indicator
+vulnerability
+observation
+asset
+sector
 ```
 
-Recommended next steps:
+Representative relationships remain explicit and typed, such as `operates`, `uses`, `associated_with`, `observed_as` and `seen_on`.
 
-- STIX 2.1 and TAXII ingestion
-- Official ATT&CK ingestion and stable external IDs
-- Alias clustering and analyst-overridable entity resolution
-- Temporal edges, confidence decay, and source provenance
-- Neo4j, Neptune, Cosmos DB, or PostgreSQL graph adapter
-- Vector embeddings, hybrid ranking, and evidence pruning
-- Analyst feedback, graph analytics, and campaign clustering
+## Why graph ML belongs here
 
-See [Production Architecture](docs/architecture.md) for design considerations.
+Traditional text retrieval can find similar names or descriptions. Graph link prediction asks a different question:
 
-## Safety
+> Given the structure of the intelligence graph, which currently absent relationships resemble relationships we have observed elsewhere?
 
-This repository is for defensive research, threat-intelligence engineering, and analyst education. All actors, campaigns, malware, indicators, observations, and vulnerabilities in the sample data are synthetic or placeholders. See [SECURITY.md](SECURITY.md).
+That is useful for analyst prioritization, data-quality review, entity-resolution support and collection planning—but should not be treated as autonomous attribution.
 
-## Contributing
+## Production evolution
 
-Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md), keep included data synthetic or openly redistributable, and run the tests before opening a pull request.
+A production implementation could incorporate temporal edge features, source reliability, graph embeddings, Node2Vec-style representations, knowledge-graph embedding models, analyst accept/reject feedback, source-specific calibration, time-based validation and provenance-aware candidate explanations.
 
-## License
+Candidate acceptance should always preserve source attribution and supporting evidence.
 
-Distributed under the [MIT License](LICENSE).
+## Evaluation boundary
+
+All included CTI entities, relationships, observations and ML examples are **synthetic**. The model demonstrates graph-feature engineering, missing-link evaluation and analyst-gated candidate ranking; it does not establish real-world threat-actor attribution accuracy.
+
+The repository does not collect credentials, access production telemetry, exploit systems, or autonomously enrich external threat platforms.
+
+---
+
+<div align="center">
+
+**Known edges are evidence. Predicted edges are questions worth investigating.**
+
+</div>
