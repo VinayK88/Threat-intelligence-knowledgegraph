@@ -17,6 +17,8 @@
 
 ---
 
+![Threat Intelligence Knowledge Graph dashboard preview](assets/dashboard-preview.svg)
+
 A defensive, locally runnable CTI platform that connects threat actors, campaigns, malware, ATT&CK techniques, indicators, vulnerabilities, enterprise observations, sectors and assets into a typed graph.
 
 The system now combines:
