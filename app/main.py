@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 
+from .graph_ml import graph_ml_report
 from .load_data import load_graph
 from .models import QueryRequest
 from .retrieval import build_evidence
@@ -10,8 +11,8 @@ from .retrieval import build_evidence
 
 app = FastAPI(
     title="Threat Intelligence Knowledge Graph",
-    version="0.1.0",
-    description="Defensive graph-based CTI retrieval and correlation reference implementation.",
+    version="0.2.0",
+    description="Defensive graph-based CTI retrieval, correlation, and analyst-gated graph ML reference implementation.",
 )
 
 graph = load_graph()
@@ -30,22 +31,22 @@ def home():
     textarea { width: 100%; min-height: 90px; padding: 10px; }
     button { padding: 10px 16px; margin-top: 8px; cursor:pointer; }
     pre { background:#111; color:#eee; padding:16px; border-radius:8px; overflow:auto; }
-    .pill { display:inline-block; border:1px solid #ccc; padding:5px 9px; border-radius:999px; margin:2px; }
   </style>
 </head>
 <body>
   <h1>Threat Intelligence Knowledge Graph</h1>
-  <p>Graph traversal + evidence retrieval for cyber threat intelligence.</p>
+  <p>Graph traversal + evidence retrieval + analyst-gated link prediction for cyber threat intelligence.</p>
 
   <textarea id="q">Which campaigns use token theft and overlap with our finance telemetry?</textarea>
   <br/>
   <button onclick="ask()">Build evidence</button>
+  <button onclick="links()">Rank missing links</button>
 
   <h2>Graph stats</h2>
   <pre id="stats"></pre>
 
-  <h2>Evidence bundle</h2>
-  <pre id="result">Run a query to inspect the retrieved entities and evidence paths.</pre>
+  <h2>Evidence / ML candidates</h2>
+  <pre id="result">Run a query or rank missing links.</pre>
 
 <script>
 async function loadStats() {
@@ -59,6 +60,10 @@ async function ask() {
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify({question, top_k:8})
   });
+  document.getElementById('result').textContent = JSON.stringify(await r.json(), null, 2);
+}
+async function links() {
+  const r = await fetch('/ml/link-candidates?limit=10');
   document.getElementById('result').textContent = JSON.stringify(await r.json(), null, 2);
 }
 loadStats();
@@ -89,6 +94,11 @@ def paths(source: str, target: str, cutoff: int = 5):
 @app.post("/query")
 def query(req: QueryRequest):
     return build_evidence(graph, req.question, req.top_k).model_dump()
+
+
+@app.get("/ml/link-candidates")
+def ml_link_candidates(limit: int = 10):
+    return graph_ml_report(graph, limit=min(max(limit, 1), 25))
 
 
 @app.get("/observations")
